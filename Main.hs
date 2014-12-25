@@ -9,7 +9,7 @@ main :: IO ()
 main = withNXT "/dev/rfcomm0" logic 
         where
           logic = do setInputModeConfirm One SoundDB RawMode
-                     forever $ liftIO (threadDelay 100) >> (getRawADValue (getInputValues One) >>= liftIO . print)
+                     forever $ liftIO (threadDelay 100) >> ((getInputValues One) >>= liftIO . print)
 
-getRawADValue :: InputValue -> NXT RawADValue
+getRawADValue :: InputValue -> RawADValue
 getRawADValue (InputValue _ _ _ _ _ x _ _ _) = x
