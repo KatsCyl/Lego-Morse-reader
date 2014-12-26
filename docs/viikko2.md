@@ -25,9 +25,9 @@ aina kokeilla kaikkia mahdollisia niksejä ensin.
 Loppujenlopuksi en kauheasti saanut viikolla
 koodillisesti aikaan: testasin minkäslaista dataa
 siitä äänisensorista saa ja aloin visioimaan
-morsentunnistunalgoa. Lueskelin myös
+morsentunnistusalgoa. Lueskelin myös
 interwebseistä miten tälläisia asioita yleensä
-tehdään kun ei kaueheasti ole kokemusta
+tehdään kun ei kauheasti ole kokemusta
 singaalinkäsittelystä ja whatnotista.
 
 Robon rakenteen puolesta päädyin käyttämään hieman
@@ -45,4 +45,4 @@ Mitä ensiviikolla?
 (offnote: The amount of hajotus kun OS asennettu
 USB1.0 muistitikulle -> Kirjoitusnopeus 5%,
 lukunopeus 10% geneerisen HDD:n kirjoitus- ja
-lukunopeudesto)
+lukunopeudesta)
