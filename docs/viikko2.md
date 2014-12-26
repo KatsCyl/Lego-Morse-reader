@@ -39,7 +39,7 @@ Mitä ensiviikolla?
 ------------------
 * Se morsealgoritmi oikeasti valmiiksi
 * Morse -> Aakkosto parsiminen (Ei vaikuttanut
-  vaikealta interetin perusteella)
+  vaikealta internetin perusteella)
 
 
 (offnote: The amount of hajotus kun OS asennettu
