@@ -36,8 +36,8 @@ enableMotorsFor time pp           = do mapM_ enablemotors pp
                                        mapM_ disablemotors pp
                                        liftIO $ threadDelay sec
                                     where
-                                      enablemotors = \(x,y) -> setOutputStateConfirm x y modes regu ratio MotorRunStateRunning tlim
-                                      disablemotors = \(x,y) -> setOutputStateConfirm x y modes regu ratio MotorRunStateIdle tlim
+                                      enablemotors (x,y) = setOutputStateConfirm x y modes regu ratio MotorRunStateRunning tlim
+                                      disablemotors (x,y) = setOutputStateConfirm x y modes regu ratio MotorRunStateIdle tlim
 
 parseRotationCount :: OutputState -> RotationCount
 parseRotationCount (OutputState _ _ _ _ _ _ _ _ _ x) = x

@@ -55,14 +55,14 @@ main = withNXT "/dev/rfcomm0" logic
           logic = do setInputModeConfirm One SoundDB RawMode
                      liftIO $ threadDelay 100000
                      liftIO $ print "Started Sampling"
-                     initInVals <- replicateM cuttime ((liftIO $ threadDelay samplerate) >> getInputValues One)
+                     initInVals <- replicateM cuttime (liftIO  (threadDelay samplerate) >> getInputValues One)
                      let initRawVals = map getRawADValue initInVals
                      values <- gatherData initRawVals
                      let duration = valuesToDuration values
                          morse = dropRubbish $ reverse $ durationToMorse duration
                          morseForAlphabetConv = cleanFromBspaces morse
                      liftIO $ print $ reverse morse
-                     liftIO $ print (decodeSentence $ morseForAlphabetConv)
+                     liftIO $ print (decodeSentence morseForAlphabetConv)
                      mapM_ morseToMoveAction morse
 
 getRawADValue :: InputValue -> RawADValue
@@ -71,19 +71,19 @@ getRawADValue (InputValue _ _ _ _ _ x _ _ _) = x
 -- gatherData gathers input data as long as the last n(cuttime) values are non silent.
 gatherData :: [RawADValue] -> NXT [RawADValue] 
 gatherData x
-    | all (>cutthreshold) ((take cuttime) x) = do y <- getInputValues One
-                                                  let val = getRawADValue y 
-                                                  return (val:x)
+    | all (>cutthreshold) (take cuttime x) = do y <- getInputValues One
+                                                let val = getRawADValue y 
+                                                return (val:x)
     | otherwise = do liftIO $ threadDelay samplerate
                      do y <- getInputValues One
                         let val = getRawADValue y
                         gatherData (val:x)
 
 valuesToDuration :: [RawADValue] -> [Int]
-valuesToDuration x = (map sum . group . map (\x -> if x < threshold then 1 else -1)) x
+valuesToDuration = map sum . group . map (\x -> if x < threshold then 1 else -1)
 
 durationToMorse :: [Int] -> [Morse]
-durationToMorse x = concat (map durHelper x)
+durationToMorse = concatMap durHelper
                     where
                       durHelper x
                           | x >= 15 = [Dash]
@@ -94,16 +94,16 @@ durationToMorse x = concat (map durHelper x)
                           | otherwise = []
 
 decodeLetter :: MorseCode -> Char
-decodeLetter morse = maybe ' ' id $ lookup morse dict
+decodeLetter morse = fromMaybe ' ' $ lookup morse dict
 
 decodeSentence :: MorseCode -> String
 decodeSentence morse = map decodeLetter $ concat $ splitLetters $ splitWords morse
 
 splitLetters :: [MorseCode] -> [[MorseCode]]
-splitLetters morse = map (splitOn [LSpace]) morse
+splitLetters = map (splitOn [LSpace])
 
 splitWords :: MorseCode -> [MorseCode]
-splitWords morse = split (oneOf [WSpace]) morse
+splitWords = split (oneOf [WSpace])
 
 morseToMoveAction :: Morse -> NXT ()
 morseToMoveAction morse
@@ -114,7 +114,7 @@ morseToMoveAction morse
                 | otherwise = moveTick
 
 cleanFromBspaces :: MorseCode -> MorseCode
-cleanFromBspaces morse = filter (/= BSpace) morse
+cleanFromBspaces = filter (/= BSpace)
 
 dropRubbish :: MorseCode -> MorseCode
 dropRubbish morse = drop (fromMaybe 0 (elemIndex WSpace morse)) morse
