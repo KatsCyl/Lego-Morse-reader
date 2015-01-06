@@ -23,7 +23,3 @@ executable massive-ironman
   -- hs-source-dirs:      
   default-language:    Haskell2010
 
-executable movetester
-  main-is:             MoveTester.hs
-  build-depends:       base >=4.7 && <4.8, NXT, transformers
-  default-language:    Haskell2010

@@ -6,17 +6,18 @@ import Control.Monad
 import Control.Concurrent
 import Data.List
 import Data.List.Split
-
-data Morse = Dot | Dash | BSpace | LSpace | WSpace deriving (Show, Eq)
+import Data.Maybe
+import Move
 
 threshold = 900 -- Threshold
 samplerate = 10 -- In microseconds, takes sample every n micros 
-cuttime =90 -- Number of silent samples to stop sampling
+cuttime =132 -- Number of silent samples to stop sampling
 cutthreshold = 900
 
+data Morse = Dot | Dash | BSpace | LSpace | WSpace deriving (Show, Eq) -- Datatype to represent morse code
 type MorseCode = [Morse]
 
-dict :: [(MorseCode, Char)]
+dict :: [(MorseCode, Char)] -- Dictionary for morsecode -> alphabet conversion, obsolete
 dict =
     [([Dot, Dash]             , 'A'),
      ([Dash, Dot, Dot, Dot]   , 'B'),
@@ -52,20 +53,23 @@ main :: IO ()
 main = withNXT "/dev/rfcomm0" logic 
         where
           logic = do setInputModeConfirm One SoundDB RawMode
-                     liftIO $ threadDelay 1000000
+                     liftIO $ threadDelay 100000
                      liftIO $ print "Started Sampling"
                      initInVals <- replicateM cuttime ((liftIO $ threadDelay samplerate) >> getInputValues One)
                      let initRawVals = map getRawADValue initInVals
                      values <- gatherData initRawVals
                      let duration = valuesToDuration values
-                         morse = durationToMorse duration
-                     liftIO $ print (decodeSentence $ reverse morse)
-                    -- forever $ liftIO (threadDelay 100) >> ((getInputValues One) >>= liftIO . print . getRawADValue)
+                         morse = dropRubbish $ reverse $ durationToMorse duration
+                         morseForAlphabetConv = cleanFromBspaces morse
+                     liftIO $ print $ reverse morse
+                     liftIO $ print (decodeSentence $ morseForAlphabetConv)
+                     mapM_ morseToMoveAction morse
 
 getRawADValue :: InputValue -> RawADValue
 getRawADValue (InputValue _ _ _ _ _ x _ _ _) = x
 
-gatherData :: [RawADValue] -> NXT [RawADValue]
+-- gatherData gathers input data as long as the last n(cuttime) values are non silent.
+gatherData :: [RawADValue] -> NXT [RawADValue] 
 gatherData x
     | all (>cutthreshold) ((take cuttime) x) = do y <- getInputValues One
                                                   let val = getRawADValue y 
@@ -86,6 +90,7 @@ durationToMorse x = concat (map durHelper x)
                           | x >= 1 = [Dot]
                           | x <= -40 = [WSpace]
                           | x <= -20 = [LSpace]
+                          | x <= 0 = [BSpace]
                           | otherwise = []
 
 decodeLetter :: MorseCode -> Char
@@ -99,3 +104,17 @@ splitLetters morse = map (splitOn [LSpace]) morse
 
 splitWords :: MorseCode -> [MorseCode]
 splitWords morse = split (oneOf [WSpace]) morse
+
+morseToMoveAction :: Morse -> NXT ()
+morseToMoveAction morse
+                | morse == Dot = drawPoint
+                | morse == Dash = drawLine
+                | morse == LSpace = replicateM_ 2 moveTick
+                | morse == WSpace = replicateM_ 3 moveTick
+                | otherwise = moveTick
+
+cleanFromBspaces :: MorseCode -> MorseCode
+cleanFromBspaces morse = filter (/= BSpace) morse
+
+dropRubbish :: MorseCode -> MorseCode
+dropRubbish morse = drop (fromMaybe 0 (elemIndex WSpace morse)) morse
