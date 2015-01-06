@@ -14,8 +14,8 @@ sec = 1000000
 lowerpentime = sec `div` 4
 liftpentime = sec `div` 4
 moveticktime = sec `div` 15
-lowerpenforce = 60
-liftpenforce = -65
+lowerpenforce = 20
+liftpenforce = -25
 moveforce = 60
 
 drawPoint :: NXT ()
