@@ -5,8 +5,10 @@ How to use this?
 ----------------
 1. Build yourself a nxt robot resembling mine, instructions coming
 2. Pair your computer and nxt with bluetooth.
-3. Bind the nxt to rfcomm1 with
-    rfcomm bind <NXT addr> rfcomm0
+3. Bind the nxt to rfcomm0 with
+
+        rfcomm bind <NXT addr> rfcomm0
+    
 4. Complie code
 5. Run code
 
