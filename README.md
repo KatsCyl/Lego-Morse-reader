@@ -7,7 +7,7 @@ How to use this?
 2. Pair your computer and nxt with bluetooth.
 3. Bind the nxt to rfcomm1 with
 
-    rfcomm bind <NXT addr> rfcomm0
+        rfcomm bind <NXT addr> rfcomm0
     
 4. Complie code
 5. Run code
